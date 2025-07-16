@@ -13,6 +13,11 @@ class View {
         include $viewPath;
         $content = ob_get_clean();
 
+        echo self::renderString($content);
+    }
+
+    private static function renderString(string $content)
+    {
         $standardTags = self::htmlTags();
 
         preg_match_all('/<([a-zA-Z][a-zA-Z0-9\-]*)\b([^>]*)\s*(\/?)>(?(3)|([\s\S]*?)<\/\1>)/', $content, $matches, PREG_SET_ORDER);
@@ -26,20 +31,20 @@ class View {
                 $componentPath = __DIR__ . "/../components/{$tag}.php";
                 if (file_exists($componentPath)) {
                     ob_start();
-                    include $componentPath;
+                    include_once $componentPath;
                     $params = [];
                     preg_match_all('/([a-zA-Z_][a-zA-Z0-9_-]*)="([^"]*)"/', $attributes, $matches, PREG_SET_ORDER);
                     foreach ($matches as $match) {
                         $params[$match[1]] = $match[2];
                     }
-                    echo $tag(...$params);
+                    echo View::renderString($tag(...$params));
                     $component = ob_get_clean();
                     $content = str_replace($fullMatch, $component, $content);
                 }
             }
         }
 
-        echo $content;
+        return $content;
     }
 
     private static function htmlTags()
