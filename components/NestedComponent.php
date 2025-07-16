@@ -3,6 +3,6 @@
 function NestedComponent() {
     return <<<HTML
         <div>This is a nested component: </div>
-        <MyComponent name="Nested" origin="Nested" />
+        <MyComponent name="MyComponent" origin="NestedComponent" />
     HTML;
 }

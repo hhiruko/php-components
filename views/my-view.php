@@ -1,4 +1,5 @@
 <div>
-    <MyComponent name="<?= $name ?>" origin="GitHub" />
+    <MyComponent name="<?= $name ?>" origin="my-view" />
+    <br/>
     <NestedComponent />
 </div>
