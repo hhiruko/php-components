@@ -5,7 +5,7 @@ A proof-of-concept implementation of functional components for template renderin
 ### Defining components:
 
 You can use components in your view files:
-```php
+```html
 <div>
     <MyComponent />
 </div>
@@ -23,7 +23,7 @@ function MyComponent() {
 ### Passing props:
 
 You can pass props:
-```php
+```html
 <div>
     <MyComponent prop1="prop1" prop2="prop2" />
 </div>
