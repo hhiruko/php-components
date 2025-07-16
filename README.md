@@ -51,7 +51,7 @@ function NestedComponent() {
 
 ### Non-void components:
 
-```php
+```html
 <div>
     <MyComponent>This is a component with a closing tag.</MyComponent>
 </div>
