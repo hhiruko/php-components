@@ -20,28 +20,51 @@ class View {
     {
         $standardTags = self::htmlTags();
 
-        preg_match_all('/<([a-zA-Z][a-zA-Z0-9\-]*)\b([^>]*)\s*(\/?)>(?(3)|([\s\S]*?)<\/\1>)/', $content, $matches, PREG_SET_ORDER);
+        preg_match_all(
+            '/(?:<([a-zA-Z][a-zA-Z0-9\-]*)\b((?:"[^"]*"|\'[^\']*\'|[^>\/])*\s*)\s*(\/?)>(?:([\s\S]*?)(?=(?:<[a-zA-Z][a-zA-Z0-9\-]*\b|<\/\1>|$)))?)|(<\/([a-zA-Z][a-zA-Z0-9\-]*)>)/', 
+            $content, 
+            $matches, 
+            PREG_SET_ORDER
+        );
 
         foreach ($matches as $match) {
             $tag = $match[1];
             $attributes = $match[2];
-            $fullMatch = $match[0];
+            $selfClosing = $match[3] === '/';
+            $innerHtml = $match[4];
+            $fullMatch = "<$tag$attributes";
 
-            if (!in_array($tag, $standardTags)) {
-                $componentPath = __DIR__ . "/../components/{$tag}.php";
-                if (file_exists($componentPath)) {
-                    ob_start();
-                    include_once $componentPath;
-                    $params = [];
-                    preg_match_all('/([a-zA-Z_][a-zA-Z0-9_-]*)="([^"]*)"/', $attributes, $matches, PREG_SET_ORDER);
-                    foreach ($matches as $match) {
-                        $params[$match[1]] = $match[2];
-                    }
-                    echo View::renderString($tag(...$params));
-                    $component = ob_get_clean();
-                    $content = str_replace($fullMatch, $component, $content);
-                }
+            if($selfClosing) {
+                $fullMatch .= '/>';
+            } else {
+                $fullMatch .= ">$innerHtml</$tag>";
             }
+
+            if (in_array($tag, $standardTags) || isset($match[6])) {
+                continue;
+            }
+
+            $componentPath = __DIR__ . "/../components/{$tag}.php";
+            if (!file_exists($componentPath)) {
+                continue;
+            }
+
+            ob_start();
+            include_once $componentPath;
+            
+            $params = [];
+            preg_match_all('/([a-zA-Z_][a-zA-Z0-9_-]*)="([^"]*)"/', $attributes, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                $params[$match[1]] = $match[2];
+            }
+            
+            if(!$selfClosing) {
+                $params['innerHtml'] = $innerHtml;
+            }
+            
+            echo View::renderString($tag(...$params));
+            $component = ob_get_clean();
+            $content = str_replace($fullMatch, $component, $content);
         }
 
         return $content;

@@ -48,3 +48,20 @@ function NestedComponent() {
     HTML;
 }
 ```
+
+### Non-void components:
+
+```php
+<div>
+    <MyComponent>This is a component with a closing tag.</MyComponent>
+</div>
+```
+
+The parameter `$innerHtml` is used to pass content between opening and closing tags:
+```php
+function MyComponent(string $innerHtml) {
+    return <<<HTML
+        <div>{$innerHtml}</div>
+    HTML;
+}
+```
