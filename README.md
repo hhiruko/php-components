@@ -158,10 +158,16 @@ Switching to classes solves a set of problems, but static analysis will not be p
 ## Deployment:
 
 1. Clone the project. 
-    `git clone https://github.com/hhiruko/php-components.git`
+    ```
+    git clone https://github.com/hhiruko/php-components.git`
+    ```
 
 2. Install composer. Alternatively, use your own autoload.
-    `composer install`
+    ```
+    composer install
+    ```
 
 3. Run a local server.
-    `php -S localhost:888`
+    ```
+    php -S localhost:888
+    ```
