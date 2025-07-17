@@ -1,5 +1,7 @@
-<?php 
+<?php
 
-require('core/View.php');
+use App\App;
 
-View::render('my-view', ['name' => 'MyComponent']);
+require __DIR__ . '/vendor/autoload.php';
+
+echo App::view();

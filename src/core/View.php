@@ -1,5 +1,7 @@
 <?php
 
+namespace App\core;
+
 class View {
     public static function render(string $name, array $variables = [])
     {
@@ -8,15 +10,17 @@ class View {
             throw new \Error("View file '{$name}.php' not found.");
         }
 
+        $classes = self::extractUse($viewPath);
+
         extract($variables);
         ob_start();
         include $viewPath;
         $content = ob_get_clean();
 
-        echo self::renderString($content);
+        echo self::renderString($content, $classes);
     }
 
-    private static function renderString(string $content)
+    private static function renderString(string $content, array $classes = [])
     {
         $standardTags = self::htmlTags();
 
@@ -49,6 +53,8 @@ class View {
                 continue;
             }
 
+            $classes = array_merge($classes, self::extractUse($componentPath));
+
             ob_start();
             include_once $componentPath;
             
@@ -62,12 +68,35 @@ class View {
                 $params['innerHtml'] = $innerHtml;
             }
             
-            echo View::renderString($tag(...$params));
+            if(array_key_exists($tag, $classes)){
+                $componentString = $classes[$tag]::render(...$params);
+            } else {
+                $componentString = $tag(...$params);
+            }
+
+            echo View::renderString($componentString, $classes);
             $component = ob_get_clean();
             $content = str_replace($fullMatch, $component, $content);
         }
 
         return $content;
+    }
+
+    private static function extractUse(string $filePath): array
+    {
+        $content = file_get_contents($filePath) ?? '';
+        $uses = [];
+        preg_match_all('/use\s+([a-zA-Z0-9_\\\\]+)(?:\s+as\s+([a-zA-Z0-9_]+))?/', $content, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            if (isset($match[2]) && !empty($match[2])) {
+                $uses[$match[2]] = $match[1];
+            } else {
+                $fullPath = $match[1];
+                $parts = explode('\\', $fullPath);
+                $uses[end($parts)] = $match[1];
+            }
+        }
+        return $uses;
     }
 
     private static function htmlTags()
