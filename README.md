@@ -65,3 +65,12 @@ function MyComponent(string $innerHtml) {
     HTML;
 }
 ```
+
+## Limitations:
+
+- No native way to enforce interfaces on functions.
+- No PSR-4 autoloading for functions.
+- IDEs can't provide type inference, auto-completion, or usage hints.
+- Current implementation uses Regex. Should switch to a more robust and dedicated HTML parser, or write my own.
+
+Switching to classes solves a set of problems, but static analysis will not be possible period, unless someone specifically writes a plugin/tool. Additionally, there is no clear use case where PHP components will be preferable over regular View files. Wrapping view files into classes for static analysis yields even more benefits. Still, an interesting experiment.
